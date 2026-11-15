@@ -8,7 +8,7 @@ export enum StatusCode {
     // Redirection (3xx):
     NotModified = 304,
 
-    // Client errors (4xx):
+// Client errors (4xx):
     BadRequest = 400,
     Unauthorized = 401,
     Forbidden = 403,
@@ -16,6 +16,7 @@ export enum StatusCode {
     MethodNotAllowed = 405,
     Conflict = 409,
     UnprocessableEntity = 422,
+    UnprocessableContent = 422,
     TooManyRequests = 429,
 
     // Server errors (5xx):

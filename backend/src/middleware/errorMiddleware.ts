@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCode } from "../models/enum";
 import { ClientError } from "../models/client-error";
+import { Error as MongooseError } from "mongoose";
 import colors from "colors";
 import { appConfig } from "../utils/app-config";
 import { errorLogService } from "../services/error-log-service";
@@ -14,18 +15,24 @@ class ErrorMiddleware {
     }
 
     // Catch-All Middleware:
-    public catchAll(err: any, request: Request, response: Response, next: NextFunction): void {
-        const status = err.status || StatusCode.InternalServerError;
-        const isServer = status >= 500 && status <= 599;
-        if (isServer) {
-            errorLogService.logError(request.method, request.originalUrl, status, err.message)
-                .catch(e => console.log("error log failed:", e.message));
-        }
-        const message = isServer && appConfig.isProduction ? "please try again later." : err.message;
-        console.log(colors.red(err.message));
-        response.status(status).json({ message });
+public catchAll(err: any, request: Request, response: Response, next: NextFunction): void {
 
+    // Mongoose validation failed → client error (400):
+    if (err instanceof MongooseError.ValidationError) {
+        const messages = Object.values(err.errors).map(e => e.message).join(" ");
+        err = new ClientError(StatusCode.BadRequest, messages);
     }
+
+    // Malformed _id in the URL → client error (400):
+    if (err instanceof MongooseError.CastError) {
+        err = new ClientError(StatusCode.BadRequest, `Invalid value "${err.value}" for ${err.path}.`);
+    }
+
+    const status = err.status || StatusCode.InternalServerError;
+    const isServer = status >= 500 && status <= 599;
+    // ... rest unchanged
+}
+
 }
 
 export const errorMiddleware = new ErrorMiddleware();

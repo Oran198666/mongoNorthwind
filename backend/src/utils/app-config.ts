@@ -18,6 +18,8 @@ class AppConfig {
     public readonly jwtSecret = process.env.JWT_SECRET!;
     public readonly recaptchaSecret = process.env.RECAPTCHA_SECRET!;
     public readonly baseImageUrl = "http://localhost:4000/api/products/images/";
+    public readonly mongoConnectionString = process.env.MONGODB_CONNECTION_STRING!;
+
 }
 
 export const appConfig = new AppConfig();

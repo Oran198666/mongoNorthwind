@@ -1,5 +1,6 @@
 import mysql2, { PoolOptions, QueryError, QueryResult } from "mysql2";
 import { appConfig } from "./app-config";
+import mongoose from "mongoose";
 
 // Data Access Layer:
 class Dal {
@@ -12,6 +13,11 @@ class Dal {
     };
 
     private readonly connection = mysql2.createPool(this.options);
+
+    public async connect(): Promise<void> {
+    await mongoose.connect(appConfig.mongoConnectionString);
+    console.log("Connected to MongoDB");
+}
 
     // Execute SQL, optionally with parameterized values:
     public execute(sql: string, values?: (string | number | boolean | null)[]): Promise<QueryResult> {

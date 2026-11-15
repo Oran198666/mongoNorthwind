@@ -1,6 +1,7 @@
 import z from "zod";
 import { ClientError } from "./client-error";
 import { StatusCode } from "./enum";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const UserSchema = z.object({
     id: z.number().int().positive().optional(),
@@ -21,7 +22,8 @@ const UserSchema = z.object({
             },
             { message: "Password must contain at least 3 of: lowercase, uppercase, digits, symbols" }
         ),
-    roleId: z.number().int().positive().optional()
+    roleId: z.number().int().positive().optional(),
+    captchaToken: z.string().max(2000)
 });
 
 type IUserModel = z.infer<typeof UserSchema>;

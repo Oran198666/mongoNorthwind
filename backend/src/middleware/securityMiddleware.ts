@@ -4,7 +4,9 @@ import { cyber } from "../utils/cyber";
 import { ClientError } from "../models/client-error";
 import striptags from "striptags";
 import rateLimit from "express-rate-limit";
+import helmet from "helmet";
 import { Express } from "express";
+
 
 class SecurityMiddleware {
 
@@ -57,21 +59,26 @@ class SecurityMiddleware {
         next();
     }
     // Prevent DoS attack:
-public registerRateLimit(server: Express): void {
+    public registerRateLimit(server: Express): void {
 
-    // General limit:
-    server.use(rateLimit({
-        windowMs: 6000,
-        limit: 5,
-        skip: (request: Request) => request.path.startsWith("/api/products/images/")
-    }));
+        // General limit:
+        server.use(rateLimit({
+            windowMs: 6000,
+            limit: 5,
+            skip: (request: Request) => request.path.startsWith("/api/products/images/")
+        }));
 
-    // Looser limit for images:
-    server.use("/api/products/images/", rateLimit({
-        windowMs: 1000,
-        limit: 200,
-    }));
-}
+        // Looser limit for images:
+        server.use("/api/products/images/", rateLimit({
+            windowMs: 1000,
+            limit: 200,
+        }));
+    }
+    public helmetProtection(server: Express): void {
+        server.use(helmet({
+            crossOriginResourcePolicy: { policy: "cross-origin" }  // allow images across origins
+        }));
+    }
 }
 
 export const securityMiddleware = new SecurityMiddleware();
